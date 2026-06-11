@@ -4,6 +4,13 @@ class Call:
     def __init__(self, name, arguments):
         self.name = name
         self.arguments = arguments
+class Assign:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+class Variable:
+    def __init__(self, name):
+        self.name = name
 
 class Parser:
     def __init__(self):
@@ -12,7 +19,11 @@ class Parser:
         self.index = 0
     
     def parse_expr(self):
-        return self.advance().value
+        start = self.advance()
+        if type(start) == tokeniser.T_Ident:
+            return Variable(start.value)
+        else:
+            return start.value
     
     def peek(self, amount = 1):
         try:
@@ -31,7 +42,7 @@ class Parser:
         return type(self.consume()) == tokeniser.T_End
     
     def parse_call(self):
-        name = self.peek(-1).value
+        name = Variable(self.peek(-1).value)
         self.advance()
         arguments = [self.parse_expr()]
         if not (type(self.consume()) == tokeniser.T_RightParen):
@@ -40,11 +51,19 @@ class Parser:
         self.advance()
         return Call(name, arguments)
     
+    def parse_assign(self):
+        name = self.peek(-1).value
+        self.advance()
+        expr = self.parse_expr()
+        return Assign(name, expr)
+
     def parse_stmt(self):
         beginning = self.advance()
         if type(beginning) == tokeniser.T_Ident and type(self.consume()) == tokeniser.T_LeftParen:
             return self.parse_call()
-    
+        elif type(beginning) == tokeniser.T_Ident and type(self.consume()) == tokeniser.T_SingleEquals:
+            return self.parse_assign()
+
     def parse(self, __tokens):
         self.tokens = __tokens
         while not self.at_end():

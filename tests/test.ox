@@ -1,1 +1,2 @@
-print("Hello, world!")
+x = 7
+print(x)

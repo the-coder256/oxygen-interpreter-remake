@@ -20,6 +20,9 @@ class T_LeftParen:
 class T_RightParen:
     def __init__(self, value):
         self.value = value
+class T_SingleEquals:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -34,6 +37,8 @@ class Tokeniser:
             t_type = T_RightParen
         elif value[0] == "'":
             t_type = T_String
+        elif value == "=":
+            t_type = T_SingleEquals
         else:
             try:
                 x = float(value)
@@ -77,6 +82,8 @@ class Tokeniser:
                 self.append_token("(")
             elif char == ")":
                 self.append_token(")")
+            elif char == "=":
+                self.append_token("=")
             else:
                 self.current_token += char
         self.append_token()
