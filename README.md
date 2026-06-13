@@ -1,4 +1,4 @@
-# Oxygen Interpreter v0.2
+# Oxygen Interpreter v0.3
 Remake of my Oxygen Interpreter with proper scoping a less bugs.
 
 ## How to Use
@@ -16,6 +16,9 @@ py src/main.py tests/test.ox
 If `py` doesn't work, try `python` or `python3`.
 
 ## Changelog
+v0.3:
+- Added if conditions
+
 v0.2:
 - Added variables
 
