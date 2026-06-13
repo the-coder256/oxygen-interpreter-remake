@@ -4,7 +4,7 @@ import parser
 import evaluator
 
 if len(argv) < 2:
-    print("No file given")
+    print("ERROR: No file given")
     exit(1)
 
 with open(argv[1], "r") as file:

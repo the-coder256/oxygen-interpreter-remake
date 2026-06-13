@@ -11,6 +11,10 @@ class Assign:
 class Variable:
     def __init__(self, name):
         self.name = name
+class IfCondition:
+    def __init__(self, condition, statements):
+        self.condition = condition
+        self.statements = statements
 
 class Parser:
     def __init__(self):
@@ -46,7 +50,7 @@ class Parser:
         self.advance()
         arguments = [self.parse_expr()]
         if not (type(self.consume()) == tokeniser.T_RightParen):
-            print("Expected ')'")
+            print("ERROR: Expected ')'")
             exit(1)
         self.advance()
         return Call(name, arguments)
@@ -57,12 +61,30 @@ class Parser:
         expr = self.parse_expr()
         return Assign(name, expr)
 
+    def parse_if(self):
+        condition = self.parse_expr()
+        if type(self.consume()) != tokeniser.T_LeftBrace:
+            print("ERROR: Expected '{'")
+            exit(1)
+        self.advance()
+        statements = []
+        while type(self.consume()) != tokeniser.T_RightBrace:
+            stmt = self.parse_stmt()
+            if not stmt:
+                print("ERROR: Expected '}'")
+                exit(1)
+            statements.append(stmt)
+        self.advance()
+        return IfCondition(condition, statements)
+
     def parse_stmt(self):
         beginning = self.advance()
         if type(beginning) == tokeniser.T_Ident and type(self.consume()) == tokeniser.T_LeftParen:
             return self.parse_call()
         elif type(beginning) == tokeniser.T_Ident and type(self.consume()) == tokeniser.T_SingleEquals:
             return self.parse_assign()
+        elif type(beginning) == tokeniser.T_If:
+            return self.parse_if()
 
     def parse(self, __tokens):
         self.tokens = __tokens

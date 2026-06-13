@@ -23,6 +23,15 @@ class T_RightParen:
 class T_SingleEquals:
     def __init__(self, value):
         self.value = value
+class T_LeftBrace:
+    def __init__(self, value):
+        self.value = value
+class T_RightBrace:
+    def __init__(self, value):
+        self.value = value
+class T_If:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -39,6 +48,12 @@ class Tokeniser:
             t_type = T_String
         elif value == "=":
             t_type = T_SingleEquals
+        elif value == "{":
+            t_type = T_LeftBrace
+        elif value == "}":
+            t_type = T_RightBrace
+        elif value == "if":
+            t_type = T_If
         else:
             try:
                 x = float(value)

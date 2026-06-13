@@ -26,7 +26,7 @@ class Evaluator:
             if name == "<built-in function 'print'>":
                 print(*arguments)
             else:
-                print("Not implemented")
+                print("ERROR: Not implemented")
                 exit(1)
         elif type(node) == parser.Assign:
             if not self.is_base_type(node.value):
@@ -37,11 +37,18 @@ class Evaluator:
         elif type(node) == parser.Variable:
             value = self.variables.get(str(scope)).get(node.name)
             if value is None:
-                print("Variable '" + str(node.name) + "' doesn't exist")
-                print(value)
+                print("ERROR: Variable '" + str(node.name) + "' doesn't exist")
                 exit(1)
             else:
                 return value
+        elif type(node) == parser.IfCondition:
+            if not self.is_base_type(node.condition):
+                condition = self.evaluate_tree(node.condition, scope)
+            else:
+                condition = node.condition
+            if condition:
+                for stmt in node.statements:
+                    self.evaluate_tree(stmt)
     
     def evaluate(self, __tree):
         self.tree = __tree

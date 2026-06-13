@@ -1,0 +1,7 @@
+STMT = | IDENT "(" EXPR ")"
+       | NAME "=" EXPR
+       | "if" EXPR "{" STMT* "}"
+
+EXPR = | NUMBER
+       | STRING
+       | IDENT
