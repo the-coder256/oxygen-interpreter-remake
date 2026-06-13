@@ -12,9 +12,10 @@ class Variable:
     def __init__(self, name):
         self.name = name
 class IfCondition:
-    def __init__(self, condition, statements):
+    def __init__(self, condition, statements, else_statements):
         self.condition = condition
         self.statements = statements
+        self.else_statements = else_statements
 
 class Parser:
     def __init__(self):
@@ -75,7 +76,21 @@ class Parser:
                 exit(1)
             statements.append(stmt)
         self.advance()
-        return IfCondition(condition, statements)
+        else_statements = []
+        if type(self.consume()) == tokeniser.T_Else:
+            self.advance()
+            if type(self.consume()) != tokeniser.T_LeftBrace:
+                print("ERROR: Expected '{'")
+                exit(1)
+            self.advance()
+            while type(self.consume()) != tokeniser.T_RightBrace:
+                stmt = self.parse_stmt()
+                if not stmt:
+                    print("ERROR: Expected '{'")
+                    exit(1)
+                else_statements.append(stmt)
+            self.advance()
+        return IfCondition(condition, statements, else_statements)
 
     def parse_stmt(self):
         beginning = self.advance()

@@ -32,6 +32,9 @@ class T_RightBrace:
 class T_If:
     def __init__(self, value):
         self.value = value
+class T_Else:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -54,6 +57,8 @@ class Tokeniser:
             t_type = T_RightBrace
         elif value == "if":
             t_type = T_If
+        elif value == "else":
+            t_type = T_Else
         else:
             try:
                 x = float(value)

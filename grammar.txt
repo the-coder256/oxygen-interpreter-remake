@@ -1,6 +1,6 @@
 STMT = | IDENT "(" EXPR ")"
        | NAME "=" EXPR
-       | "if" EXPR "{" STMT* "}"
+       | "if" EXPR "{" STMT* "}" ("else" "{" STMT* "}")?
 
 EXPR = | NUMBER
        | STRING

@@ -49,6 +49,9 @@ class Evaluator:
             if condition:
                 for stmt in node.statements:
                     self.evaluate_tree(stmt)
+            else:
+                for stmt in node.else_statements:
+                    self.evaluate_tree(stmt)
     
     def evaluate(self, __tree):
         self.tree = __tree
