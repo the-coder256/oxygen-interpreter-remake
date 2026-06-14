@@ -1,4 +1,4 @@
-# Oxygen Interpreter v0.4
+# Oxygen Interpreter v0.5
 Remake of my Oxygen Interpreter with proper scoping a less bugs.
 
 ## How to Use
@@ -15,7 +15,19 @@ py src/main.py tests/test.ox
 
 If `py` doesn't work, try `python` or `python3`.
 
+### Options
+
+You can use options to do things. Here are all valid options:
+
+- `-v` or `--version` - Displays interpreter version
+
 ## Changelog
+v0.5:
+- Added function definitions
+- Added interpreter version access (`-v` or `--version`)
+- Fully implemented scoping
+- Implemented function calls for defined functions
+
 v0.4:
 - Added else
 
