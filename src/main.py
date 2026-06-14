@@ -7,6 +7,10 @@ if len(argv) < 2:
     print("ERROR: No file given")
     exit(1)
 
+if argv[1] in ["-v", "--version"]:
+    print("Oxygen Interpreter v0.5")
+    exit(0)
+
 with open(argv[1], "r") as file:
     content = file.read()
 

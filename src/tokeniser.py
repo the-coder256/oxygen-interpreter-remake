@@ -1,3 +1,6 @@
+class T_Token:     # generic token type
+    def __init__(self, value):
+        self.value = value
 class T_Number:
     def __init__(self, value):
         x = float(value)
@@ -35,6 +38,9 @@ class T_If:
 class T_Else:
     def __init__(self, value):
         self.value = value
+class T_Define:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -59,6 +65,8 @@ class Tokeniser:
             t_type = T_If
         elif value == "else":
             t_type = T_Else
+        elif value == "define":
+            t_type = T_Define
         else:
             try:
                 x = float(value)

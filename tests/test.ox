@@ -1,6 +1,7 @@
-x = 42
-if x {        // print the value of x if x is not zero
+x = 7
+define function() {
+    x = 10
     print(x)
-} else {      // otherwise print "x is zero"
-    print("x is zero")
 }
+function()
+print(x)

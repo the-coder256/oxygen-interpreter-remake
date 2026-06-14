@@ -16,6 +16,11 @@ class IfCondition:
         self.condition = condition
         self.statements = statements
         self.else_statements = else_statements
+class Definiton:
+    def __init__(self, name, parameters, statements):
+        self.name = name
+        self.parameters = parameters
+        self.statements = statements
 
 class Parser:
     def __init__(self):
@@ -30,16 +35,16 @@ class Parser:
         else:
             return start.value
     
-    def peek(self, amount = 1):
+    def peek(self, amount = 1) -> tokeniser.T_Token:
         try:
             return self.tokens[self.index + amount]
         except:
             return tokeniser.T_End("END")
     
-    def consume(self):
+    def consume(self) -> tokeniser.T_Token:
         return self.tokens[self.index]
     
-    def advance(self):
+    def advance(self) -> tokeniser.T_Token:
         self.index += 1
         return self.tokens[self.index - 1]
     
@@ -49,7 +54,10 @@ class Parser:
     def parse_call(self):
         name = Variable(self.peek(-1).value)
         self.advance()
-        arguments = [self.parse_expr()]
+        if type(self.consume()) == tokeniser.T_RightParen:
+            arguments = []
+        else:
+            arguments = [self.parse_expr()]
         if not (type(self.consume()) == tokeniser.T_RightParen):
             print("ERROR: Expected ')'")
             exit(1)
@@ -91,6 +99,34 @@ class Parser:
                 else_statements.append(stmt)
             self.advance()
         return IfCondition(condition, statements, else_statements)
+    
+    def parse_define(self):
+        name = self.advance().value
+        if type(self.consume()) != tokeniser.T_LeftParen:
+            print("ERROR: Expected '('")
+            exit(1)
+        self.advance()
+        if type(self.consume()) == tokeniser.T_RightParen:    # change this too
+            parameters = []
+        else:
+            parameters = [self.advance().value]    # change this asap
+        if type(self.consume()) != tokeniser.T_RightParen:
+            print("ERROR: Expected ')'")
+            exit(1)
+        self.advance()
+        if type(self.consume()) != tokeniser.T_LeftBrace:
+            print("ERROR: Expected '{'")
+            exit(1)
+        self.advance()
+        statements = []
+        while type(self.consume()) != tokeniser.T_RightBrace:
+            stmt = self.parse_stmt()
+            if not stmt:
+                print("ERROR: Expected '}'")
+                exit(1)
+            statements.append(stmt)
+        self.advance()
+        return Definiton(name, parameters, statements)
 
     def parse_stmt(self):
         beginning = self.advance()
@@ -100,6 +136,8 @@ class Parser:
             return self.parse_assign()
         elif type(beginning) == tokeniser.T_If:
             return self.parse_if()
+        elif type(beginning) == tokeniser.T_Define:
+            return self.parse_define()
 
     def parse(self, __tokens):
         self.tokens = __tokens
