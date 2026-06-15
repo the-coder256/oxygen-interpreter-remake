@@ -1,4 +1,4 @@
-# Oxygen Interpreter v0.5
+# Oxygen Interpreter v0.6
 Remake of my Oxygen Interpreter with proper scoping a less bugs.
 
 ## How to Use
@@ -22,6 +22,11 @@ You can use options to do things. Here are all valid options:
 - `-v` or `--version` - Displays interpreter version
 
 ## Changelog
+v0.6:
+- Added support for multi argument calls
+- Added support for multi parameter function definitions
+- Added returning
+
 v0.5:
 - Added function definitions
 - Added interpreter version access (`-v` or `--version`)
