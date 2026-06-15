@@ -51,19 +51,28 @@ class Evaluator:
                     exit(1)
                 for index in range(len(definition.parameters)):    # we know there are enough arguments
                     if not self.is_base_type(node.arguments[index]):
-                        arg = self.evaluate_tree(node.arguments[index], scope)
+                        arg = self.evaluate_tree(node.arguments[index], scope, parent_scope)
                     else:
                         arg = node.arguments[index]
                     param = str(definition.parameters[index])
                     self.variables.get(str(new_scope)).update({param: arg})
                 # evaluate all statements
                 for stmt in definition.statements:
-                    self.evaluate_tree(stmt, new_scope, parent)
+                    if type(stmt) == parser.Return:
+                        if not self.is_base_type(stmt.value):
+                            ret_val = self.evaluate_tree(stmt.value, new_scope, parent)
+                        else:
+                            ret_val = stmt.value
+                        # destroy the scope
+                        self.destroy_scope(new_scope)
+                        return ret_val
+                    else:
+                        self.evaluate_tree(stmt, new_scope, parent)
                 # destroy the scope
                 self.destroy_scope(new_scope)
         elif type(node) == parser.Assign:
             if not self.is_base_type(node.value):
-                value = self.evaluate_tree(node.value, scope)
+                value = self.evaluate_tree(node.value, scope, parent_scope)
             else:
                 value = node.value
             self.variables.get(str(scope)).update({node.name: value})
@@ -72,7 +81,10 @@ class Evaluator:
             value = self.variables.get(str(scope)).get(node.name)
             if value is None:
                 # if that fails, check parent scope
-                value = self.variables.get(str(parent_scope)).get(node.name)
+                if parent_scope is None:
+                    value = None
+                else:
+                    value = self.variables.get(str(parent_scope)).get(node.name)
                 if value is None:
                     # the variable doesnt exist
                     print("ERROR: Variable '" + str(node.name) + "' doesn't exist")
@@ -83,15 +95,15 @@ class Evaluator:
                 return value
         elif type(node) == parser.IfCondition:
             if not self.is_base_type(node.condition):
-                condition = self.evaluate_tree(node.condition, scope)
+                condition = self.evaluate_tree(node.condition, scope, parent_scope)
             else:
                 condition = node.condition
             if condition:
                 for stmt in node.statements:
-                    self.evaluate_tree(stmt, scope)
+                    self.evaluate_tree(stmt, scope, parent_scope)
             else:
                 for stmt in node.else_statements:
-                    self.evaluate_tree(stmt, scope)
+                    self.evaluate_tree(stmt, scope, parent_scope)
         elif type(node) == parser.Definiton:
             self.variables.get(str(scope)).update({str(node.name): node})
     

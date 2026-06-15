@@ -1,7 +1,9 @@
 x = 7
-define function() {
-    x = 10
-    print(x)
+define function(number, other_number) {
+    x = number
+    y = other_number
+    print(x, y)
+    return other_number
 }
-function()
+print(function(10, 6))
 print(x)

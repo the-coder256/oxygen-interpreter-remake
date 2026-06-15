@@ -41,6 +41,12 @@ class T_Else:
 class T_Define:
     def __init__(self, value):
         self.value = value
+class T_Comma:
+    def __init__(self, value):
+        self.value = value
+class T_Return:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -67,6 +73,10 @@ class Tokeniser:
             t_type = T_Else
         elif value == "define":
             t_type = T_Define
+        elif value == ",":
+            t_type = T_Comma
+        elif value == "return":
+            t_type = T_Return
         else:
             try:
                 x = float(value)
@@ -112,6 +122,8 @@ class Tokeniser:
                 self.append_token(")")
             elif char == "=":
                 self.append_token("=")
+            elif char == ",":
+                self.append_token(",")
             else:
                 self.current_token += char
         self.append_token()
