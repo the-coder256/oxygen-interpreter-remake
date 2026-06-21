@@ -21,9 +21,16 @@ class Definiton:
         self.name = name
         self.parameters = parameters
         self.statements = statements
+    def __repr__(self):
+        return f"<function '{self.name}'>"
 class Return:
     def __init__(self, value):
         self.value = value
+class BinOp:
+    def __init__(self, op, left, right):
+        self.op = op
+        self.left = left
+        self.right = right
 
 class Parser:
     def __init__(self):
@@ -31,13 +38,50 @@ class Parser:
         self.tree = []
         self.index = 0
     
-    def parse_expr(self):
+    def parse_factor(self):
+        if type(self.consume()) == tokeniser.T_LeftParen:
+            self.advance()
+            expr = self.parse_expr()
+            self.advance()
+            return expr
+        else:
+            return self.parse_expr(True)
+    
+    def parse_term(self):
+        node = self.parse_factor()
+        while type(self.consume()) in [tokeniser.T_Star, tokeniser.T_Slash]:
+            op = self.advance().value
+            right = self.parse_factor()
+            node = BinOp(str(op), node, right)
+        return node
+    
+    def parse_math(self, base=True):
+        if base:
+            self.index -= 1
+        node = self.parse_term()
+        while type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus]:
+            op = self.advance().value
+            right = self.parse_term()
+            node = BinOp(str(op), node, right)
+        return node
+    
+    def parse_expr(self, ignore_math=False):
         start = self.advance()
         if type(start) == tokeniser.T_Ident:
             if type(self.consume()) == tokeniser.T_LeftParen:
-                return self.parse_call()
+                old_index = self.index
+                call = self.parse_call()
+                if type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
+                    self.index = old_index
+                    return self.parse_math()
+                else:
+                    return call
+            elif type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
+                return self.parse_math()
             else:
                 return Variable(start.value)
+        elif type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
+            return self.parse_math()
         else:
             return start.value
     
@@ -66,7 +110,7 @@ class Parser:
             arguments.append(value)
             while type(self.consume()) != tokeniser.T_RightParen:
                 if type(self.consume()) != tokeniser.T_Comma:
-                    print("Expected ','")
+                    print("ERROR: Expected ','")
                     exit(1)
                 self.advance()
                 value = self.parse_expr()
@@ -125,7 +169,7 @@ class Parser:
             parameters.append(param_name)
             while type(self.consume()) != tokeniser.T_RightParen:
                 if type(self.consume()) != tokeniser.T_Comma:
-                    print("Expected ','")
+                    print("ERROR: Expected ','")
                     exit(1)
                 self.advance()
                 param_name = self.advance().value

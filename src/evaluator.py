@@ -106,6 +106,23 @@ class Evaluator:
                     self.evaluate_tree(stmt, scope, parent_scope)
         elif type(node) == parser.Definiton:
             self.variables.get(str(scope)).update({str(node.name): node})
+        elif type(node) == parser.BinOp:
+            if not self.is_base_type(node.left):
+                left = self.evaluate_tree(node.left, scope, parent_scope)
+            else:
+                left = node.left
+            if not self.is_base_type(node.right):
+                right = self.evaluate_tree(node.right, scope, parent_scope)
+            else:
+                right = node.right
+            if node.op == "+":
+                return left + right
+            elif node.op == "-":
+                return left - right
+            elif node.op == "*":
+                return left * right
+            elif node.op == "/":
+                return left / right
     
     def evaluate(self, __tree):
         self.tree = __tree

@@ -1,9 +1,4 @@
-x = 7
-define function(number, other_number) {
-    x = number
-    y = other_number
-    print(x, y)
-    return other_number
+define add(num1, num2) {
+    return num1 + num2
 }
-print(function(10, 6))
-print(x)
+print(add(2, 3))

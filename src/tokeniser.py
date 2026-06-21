@@ -47,6 +47,18 @@ class T_Comma:
 class T_Return:
     def __init__(self, value):
         self.value = value
+class T_Plus:
+    def __init__(self, value):
+        self.value = value
+class T_Minus:
+    def __init__(self, value):
+        self.value = value
+class T_Star:
+    def __init__(self, value):
+        self.value = value
+class T_Slash:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -77,6 +89,14 @@ class Tokeniser:
             t_type = T_Comma
         elif value == "return":
             t_type = T_Return
+        elif value == "+":
+            t_type = T_Plus
+        elif value == "-":
+            t_type = T_Minus
+        elif value == "*":
+            t_type = T_Star
+        elif value == "/":
+            t_type = T_Slash
         else:
             try:
                 x = float(value)
@@ -102,8 +122,10 @@ class Tokeniser:
                 self.append_token()
                 in_comment = 0
             elif char == "/" and not in_string:
-                if content[index + 1]:
+                if content[index + 1] == "/":
                     in_comment = 1
+                else:
+                    self.append_token("/")
             elif char in ["'", '"'] and not in_string:
                 self.current_token += "'"
                 in_string = 1
@@ -124,6 +146,12 @@ class Tokeniser:
                 self.append_token("=")
             elif char == ",":
                 self.append_token(",")
+            elif char == "+":
+                self.append_token("+")
+            elif char == "-":
+                self.append_token("-")
+            elif char == "*":
+                self.append_token("*")
             else:
                 self.current_token += char
         self.append_token()

@@ -8,3 +8,12 @@ EXPR = | NUMBER
        | STRING
        | IDENT
        | IDENT "(" (EXPR ("," EXPR)*)? ")"
+       | MATH
+       | TERM
+       | FACTOR
+
+MATH = | TERM (("+" | "-") TERM)*
+
+TERM = | FACTOR (("*" | "/") FACTOR)*
+
+FACTOR = | (EXPR | "(" EXPR ")")
