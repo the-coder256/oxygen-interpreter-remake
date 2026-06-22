@@ -12,10 +12,12 @@ class Variable:
     def __init__(self, name):
         self.name = name
 class IfCondition:
-    def __init__(self, condition, statements, else_statements):
+    def __init__(self, condition, statements, else_statements, elif_conditions, elif_statements):
         self.condition = condition
         self.statements = statements
         self.else_statements = else_statements
+        self.elif_conditions = elif_conditions
+        self.elif_statements = elif_statements
 class Definiton:
     def __init__(self, name, parameters, statements):
         self.name = name
@@ -141,6 +143,29 @@ class Parser:
                 exit(1)
             statements.append(stmt)
         self.advance()
+        # parse else ifs
+        elif_statements:list[list] = []
+        elif_conditions:list = []
+        elif_branch_statements:list = []
+        while type(self.consume()) == tokeniser.T_Else and type(self.peek()) == tokeniser.T_If:
+            self.advance()
+            self.advance()
+            elif_branch_condition = self.parse_expr()
+            if type(self.consume()) != tokeniser.T_LeftBrace:
+                print("ERROR: Expected '{'")
+                exit(1)
+            self.advance()
+            while type(self.consume()) != tokeniser.T_RightBrace:
+                stmt = self.parse_stmt()
+                if not stmt:
+                    print("ERROR: Expected '}'")
+                    exit(1)
+                elif_branch_statements.append(stmt)
+            self.advance()
+            elif_conditions.append(elif_branch_condition)
+            elif_statements.append(elif_branch_statements)
+            elif_branch_statements = []
+        # parse else
         else_statements = []
         if type(self.consume()) == tokeniser.T_Else:
             self.advance()
@@ -155,7 +180,7 @@ class Parser:
                     exit(1)
                 else_statements.append(stmt)
             self.advance()
-        return IfCondition(condition, statements, else_statements)
+        return IfCondition(condition, statements, else_statements, elif_conditions, elif_statements)
     
     def parse_define(self):
         name = self.advance().value

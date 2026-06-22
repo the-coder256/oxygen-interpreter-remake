@@ -102,8 +102,26 @@ class Evaluator:
                 for stmt in node.statements:
                     self.evaluate_tree(stmt, scope, parent_scope)
             else:
-                for stmt in node.else_statements:
-                    self.evaluate_tree(stmt, scope, parent_scope)
+                if len(node.elif_statements) > 0:
+                    trigger_else = True
+                    for index in range(len(node.elif_statements)):
+                        elif_condition = node.elif_conditions[index]
+                        elif_stmts = node.elif_statements[index]
+                        if not self.is_base_type(elif_condition):
+                            this_condition = self.evaluate_tree(elif_condition, scope, parent_scope)
+                        else:
+                            this_condition = elif_condition
+                        if this_condition:
+                            trigger_else = False
+                            for elif_stmt in elif_stmts:
+                                self.evaluate_tree(elif_stmt, scope, parent_scope)
+                            break
+                    if trigger_else:
+                        for stmt in node.else_statements:
+                            self.evaluate_tree(stmt, scope, parent_scope)
+                else:
+                    for stmt in node.else_statements:
+                        self.evaluate_tree(stmt, scope, parent_scope)
         elif type(node) == parser.Definiton:
             self.variables.get(str(scope)).update({str(node.name): node})
         elif type(node) == parser.BinOp:

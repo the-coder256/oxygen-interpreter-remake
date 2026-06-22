@@ -1,6 +1,6 @@
 STMT = | IDENT "(" (EXPR ("," EXPR)*)? ")"
        | NAME "=" EXPR
-       | "if" EXPR "{" STMT* "}" ("else" "{" STMT* "}")?
+       | "if" EXPR "{" STMT* "}" ("else" "if" EXPR "{" STMT* "}")* ("else" "{" STMT* "}")?
        | "define" NAME "(" (NAME ("," NAME)*)? ")" "{" STMT* "}"
        | "return" EXPR
 

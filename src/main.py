@@ -8,7 +8,7 @@ if len(argv) < 2:
     exit(1)
 
 if argv[1] in ["-v", "--version"]:
-    print("Oxygen Interpreter v0.7")
+    print("Oxygen Interpreter v0.8")
     exit(0)
 
 with open(argv[1], "r") as file:
