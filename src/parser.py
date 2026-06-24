@@ -34,6 +34,18 @@ class BinOp:
         self.left = left
         self.right = right
 
+operations = [
+    tokeniser.T_Plus,
+    tokeniser.T_Minus,
+    tokeniser.T_Star,
+    tokeniser.T_Slash,
+    tokeniser.T_DoubleEquals,
+    tokeniser.T_Less,
+    tokeniser.T_Greater,
+    tokeniser.T_LessEquals,
+    tokeniser.T_GreaterEquals
+]
+
 class Parser:
     def __init__(self):
         self.tokens = []
@@ -57,13 +69,20 @@ class Parser:
             node = BinOp(str(op), node, right)
         return node
     
-    def parse_math(self, base=True):
-        if base:
-            self.index -= 1
+    def parse_math(self):
         node = self.parse_term()
         while type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus]:
             op = self.advance().value
             right = self.parse_term()
+            node = BinOp(str(op), node, right)
+        return node
+    
+    def parse_comparsion(self):
+        self.index -= 1
+        node = self.parse_math()
+        while type(self.consume()) in [tokeniser.T_DoubleEquals, tokeniser.T_Less, tokeniser.T_Greater, tokeniser.T_LessEquals, tokeniser.T_GreaterEquals]:
+            op = self.advance().value
+            right = self.parse_math()
             node = BinOp(str(op), node, right)
         return node
     
@@ -73,17 +92,17 @@ class Parser:
             if type(self.consume()) == tokeniser.T_LeftParen:
                 old_index = self.index
                 call = self.parse_call()
-                if type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
+                if type(self.consume()) in operations and not ignore_math:
                     self.index = old_index
-                    return self.parse_math()
+                    return self.parse_comparsion()
                 else:
                     return call
-            elif type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
-                return self.parse_math()
+            elif type(self.consume()) in operations and not ignore_math:
+                return self.parse_comparsion()
             else:
                 return Variable(start.value)
-        elif type(self.consume()) in [tokeniser.T_Plus, tokeniser.T_Minus, tokeniser.T_Star, tokeniser.T_Slash] and not ignore_math:
-            return self.parse_math()
+        elif type(self.consume()) in operations and not ignore_math:
+            return self.parse_comparsion()
         else:
             return start.value
     

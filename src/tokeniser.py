@@ -59,11 +59,28 @@ class T_Star:
 class T_Slash:
     def __init__(self, value):
         self.value = value
+class T_DoubleEquals:
+    def __init__(self, value):
+        self.value = value
+class T_Less:
+    def __init__(self, value):
+        self.value = value
+class T_Greater:
+    def __init__(self, value):
+        self.value = value
+class T_LessEquals:
+    def __init__(self, value):
+        self.value = value
+class T_GreaterEquals:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
+        self.content = ""
         self.tokens = []
         self.current_token = ""
+        self.index = 0
     
     def create_token(self, value):
         t_type = None
@@ -97,6 +114,16 @@ class Tokeniser:
             t_type = T_Star
         elif value == "/":
             t_type = T_Slash
+        elif value == "<":
+            t_type = T_Less
+        elif value == ">":
+            t_type = T_Greater
+        elif value == "==":
+            t_type = T_DoubleEquals
+        elif value == "<=":
+            t_type = T_LessEquals
+        elif value == ">=":
+            t_type = T_GreaterEquals
         else:
             try:
                 x = float(value)
@@ -112,20 +139,36 @@ class Tokeniser:
         if extra:
             self.tokens.append(self.create_token(extra))
     
-    def tokenise(self, content):
+    def peek(self, amount = 1):
+        try:
+            return self.content[self.index + amount]
+        except:
+            return ""
+    
+    def tokenise(self, content):    # TODO: tokenise ==, <, >, <=, >=
+        self.content = content
         in_string = 0
         string_char = ""
         in_comment = 0
+        in_ml_comment = 0
         for index in range(len(content)):
+            self.index = index
             char = content[index]
             if char == "\n":
                 self.append_token()
                 in_comment = 0
             elif char == "/" and not in_string:
-                if content[index + 1] == "/":
+                if self.peek() == "/":
                     in_comment = 1
-                else:
+                elif self.peek() == "*":
+                    in_ml_comment = 1
+                elif self.peek(-1) not in ["*", "/"]:
                     self.append_token("/")
+            elif char == "*" and in_ml_comment:
+                if self.peek() == "/":
+                    in_ml_comment = 0
+            elif in_comment or in_ml_comment:
+                continue
             elif char in ["'", '"'] and not in_string:
                 self.current_token += "'"
                 in_string = 1
@@ -134,16 +177,12 @@ class Tokeniser:
                 in_string = 0
             elif in_string:
                 self.current_token += char
-            elif in_comment:
-                continue
             elif char == " " and not in_string:
                 self.append_token()
             elif char == "(":
                 self.append_token("(")
             elif char == ")":
                 self.append_token(")")
-            elif char == "=":
-                self.append_token("=")
             elif char == ",":
                 self.append_token(",")
             elif char == "+":
@@ -152,6 +191,21 @@ class Tokeniser:
                 self.append_token("-")
             elif char == "*":
                 self.append_token("*")
+            elif char == "=":
+                if self.peek() == "=":
+                    self.append_token("==")
+                elif self.peek(-1) not in ["=", "<", ">"]:
+                    self.append_token("=")
+            elif char == "<":
+                if self.peek() == "=":
+                    self.append_token("<=")
+                else:
+                    self.append_token("<")
+            elif char == ">":
+                if self.peek() == "=":
+                    self.append_token(">=")
+                else:
+                    self.append_token(">")
             else:
                 self.current_token += char
         self.append_token()

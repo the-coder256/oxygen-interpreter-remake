@@ -1,10 +1,7 @@
-if 1 {     // i need multi-line comments
-    print("If is true")
-} else if 0 {
-    print("Else if #1 is true")
-} else if 1 {
-    print("Else if #2 is true")
-} else {
-    print("None of the above were true")
+define recursive(number) {
+    if number > 0 {
+        print(number)
+        recursive(number - 1)   // calls parent *could* be function defintion scope
+    }
 }
-print("Program finished")
+recursive(6)

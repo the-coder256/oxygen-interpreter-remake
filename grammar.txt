@@ -8,9 +8,9 @@ EXPR = | NUMBER
        | STRING
        | IDENT
        | IDENT "(" (EXPR ("," EXPR)*)? ")"
-       | MATH
-       | TERM
-       | FACTOR
+       | COMP
+
+COMP = | MATH (("<" | ">" | "==" | "<=" | ">=") MATH)*
 
 MATH = | TERM (("+" | "-") TERM)*
 
