@@ -1,4 +1,4 @@
-# Oxygen Interpreter v0.8
+# Oxygen Interpreter v0.9
 Remake of my Oxygen Interpreter with proper scoping a less bugs.
 
 ## How to Use
@@ -22,6 +22,11 @@ You can use options to do things. Here are all valid options:
 - `-v` or `--version` - Displays interpreter version
 
 ## Changelog
+v0.9:
+- Added comparison operators
+- Fixed some bugs
+- Fixed recursion
+
 v0.8:
 - Added else if
 
