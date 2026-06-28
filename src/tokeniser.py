@@ -74,6 +74,9 @@ class T_LessEquals:
 class T_GreaterEquals:
     def __init__(self, value):
         self.value = value
+class T_For:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -124,6 +127,8 @@ class Tokeniser:
             t_type = T_LessEquals
         elif value == ">=":
             t_type = T_GreaterEquals
+        elif value == "for":
+            t_type = T_For
         else:
             try:
                 x = float(value)
@@ -145,7 +150,7 @@ class Tokeniser:
         except:
             return ""
     
-    def tokenise(self, content):    # TODO: tokenise ==, <, >, <=, >=
+    def tokenise(self, content):
         self.content = content
         in_string = 0
         string_char = ""

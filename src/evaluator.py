@@ -7,7 +7,6 @@ class Evaluator:
             "-1": {"print": "<built-in function 'print'>"}
         }
         self.id = 0
-        self.definition_scopes = {}
     
     def is_base_type(self, value):
         return type(value) in [str, int, float]
@@ -45,6 +44,20 @@ class Evaluator:
     def set_variable_value(self, name, value, scope = -1):
         self.variables.get(str(scope)).update({str(name): value})
     
+    def get_scope_from_name(self, name, scope:int) -> int:
+        # check current scope
+        value = self.variables.get(str(scope)).get(name)
+        if value:
+            return scope
+        else:
+            # check global scope
+            value = self.variables.get("-1").get(name)
+            if value:
+                return -1
+            else:
+                print("ERROR: Couldn't locate scope of", name)
+                exit(2)
+    
     def evaluate_tree(self, node, scope = -1, parent_scope:(int|None) = None):
         if type(node) == parser.Call:
             if not self.is_base_type(node.name):
@@ -65,7 +78,7 @@ class Evaluator:
                     print("Missing definition")
                     exit(1)
                 # create scope
-                parent = self.definition_scopes.get(node.name.name)
+                parent = self.get_scope_from_name(node.name.name, scope)
                 new_scope = self.create_new_scope()
                 # initialise parameter variables
                 if len(definition.parameters) > len(node.arguments):
@@ -79,8 +92,8 @@ class Evaluator:
                     param = str(definition.parameters[index])
                     self.variables.get(str(new_scope)).update({param: arg})
                 # evaluate all statements
-                for stmt in definition.statements:
-                    if type(stmt) == parser.Return:
+                for stmt in definition.statements:      # There is a bug where you cant put a return in a block in a definition
+                    if type(stmt) == parser.Return:     # Yeah uhh i cant fix that (wait until bytecode vm :P)
                         if not self.is_base_type(stmt.value):
                             ret_val = self.evaluate_tree(stmt.value, new_scope, parent)
                         else:
@@ -131,7 +144,6 @@ class Evaluator:
                         self.evaluate_tree(stmt, scope, parent_scope)
         elif type(node) == parser.Definiton:
             self.set_variable_value(node.name, node, scope)
-            self.definition_scopes.update({node.name: scope})
         elif type(node) == parser.BinOp:
             if not self.is_base_type(node.left):
                 left = self.evaluate_tree(node.left, scope, parent_scope)
@@ -159,6 +171,21 @@ class Evaluator:
                 return int(left <= right)
             elif node.op == ">=":
                 return int(left >= right)
+        elif type(node) == parser.ForLoop:
+            self.evaluate_tree(node.assign, scope, parent_scope)
+            while True:
+                # check condition
+                if not self.is_base_type(node.condition):
+                    condition = self.evaluate_tree(node.condition, scope, parent_scope)
+                else:
+                    condition = node.condition
+                if not condition:
+                    break
+                # run statements
+                for stmt in node.statements:
+                    self.evaluate_tree(stmt, scope, parent_scope)
+                # step
+                self.evaluate_tree(node.step, scope, parent_scope)
     
     def evaluate(self, __tree):
         self.tree = __tree

@@ -3,6 +3,7 @@ STMT = | IDENT "(" (EXPR ("," EXPR)*)? ")"
        | "if" EXPR "{" STMT* "}" ("else" "if" EXPR "{" STMT* "}")* ("else" "{" STMT* "}")?
        | "define" NAME "(" (NAME ("," NAME)*)? ")" "{" STMT* "}"
        | "return" EXPR
+       | "for" NAME "=" EXPR "," EXPR "," STMT "{" STMT* "}"
 
 EXPR = | NUMBER
        | STRING

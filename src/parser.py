@@ -33,6 +33,12 @@ class BinOp:
         self.op = op
         self.left = left
         self.right = right
+class ForLoop:
+    def __init__(self, assign:Assign, condition, step, statements):
+        self.assign = assign
+        self.condition = condition
+        self.step = step
+        self.statements = statements
 
 operations = [
     tokeniser.T_Plus,
@@ -239,6 +245,33 @@ class Parser:
     def parse_return(self):
         value = self.parse_expr()
         return Return(value)
+    
+    def parse_for(self):
+        self.advance()
+        assignment = self.parse_assign()
+        if type(self.consume()) != tokeniser.T_Comma:
+            print("ERROR: Expected ','")
+            exit(1)
+        self.advance()
+        condition = self.parse_expr()
+        if type(self.consume()) != tokeniser.T_Comma:
+            print("ERROR: Expected ','")
+            exit(1)
+        self.advance()
+        step = self.parse_stmt()
+        if type(self.consume()) != tokeniser.T_LeftBrace:
+            print("ERROR: Expected '{'")
+            exit(1)
+        self.advance()
+        statements = []
+        while type(self.consume()) != tokeniser.T_RightBrace:
+            stmt = self.parse_stmt()
+            if not stmt:
+                print("ERROR: Expected '}'")
+                exit(1)
+            statements.append(stmt)
+        self.advance()
+        return ForLoop(assignment, condition, step, statements)
 
     def parse_stmt(self):
         beginning = self.advance()
@@ -252,6 +285,8 @@ class Parser:
             return self.parse_define()
         elif type(beginning) == tokeniser.T_Return:
             return self.parse_return()
+        elif type(beginning) == tokeniser.T_For:
+            return self.parse_for()
 
     def parse(self, __tokens):
         self.tokens = __tokens
