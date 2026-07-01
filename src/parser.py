@@ -39,6 +39,19 @@ class ForLoop:
         self.condition = condition
         self.step = step
         self.statements = statements
+class CompoundBinOp:
+    def __init__(self, op, name, expr):
+        self.op = op
+        self.name = name
+        self.expr = expr
+class While:
+    def __init__(self, condition, statements):
+        self.condition = condition
+        self.statements = statements
+class Break:
+    pass
+class Continue:
+    pass
 
 operations = [
     tokeniser.T_Plus,
@@ -272,6 +285,27 @@ class Parser:
             statements.append(stmt)
         self.advance()
         return ForLoop(assignment, condition, step, statements)
+    
+    def parse_compound(self):
+        name = self.peek(-1).value
+        op =   self.advance().value
+        expr = self.parse_expr()
+        return CompoundBinOp(op, name, expr)
+    
+    def parse_while(self):
+        condition = self.parse_expr()
+        if type(self.consume()) != tokeniser.T_LeftBrace:
+            print("Expected '{'")
+            exit(1)
+        self.advance()
+        statements = []
+        while type(self.consume()) != tokeniser.T_RightBrace:
+            stmt = self.parse_stmt()
+            if not stmt:
+                print("ERROR: Expected '}'")
+                exit(1)
+            statements.append(stmt)
+        return While(condition, statements)
 
     def parse_stmt(self):
         beginning = self.advance()
@@ -287,6 +321,15 @@ class Parser:
             return self.parse_return()
         elif type(beginning) == tokeniser.T_For:
             return self.parse_for()
+        elif type(beginning) == tokeniser.T_Ident and type(self.consume()) in [
+            tokeniser.T_PlusEquals, tokeniser.T_MinusEquals, tokeniser.T_StarEquals, tokeniser.T_SlashEquals]:
+            return self.parse_compound()
+        elif type(beginning) == tokeniser.T_While:
+            return self.parse_while()
+        elif type(beginning) == tokeniser.T_Break:
+            return Break()
+        elif type(beginning) == tokeniser.T_Continue:
+            return Continue()
 
     def parse(self, __tokens):
         self.tokens = __tokens

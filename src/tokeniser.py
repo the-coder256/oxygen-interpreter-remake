@@ -77,6 +77,27 @@ class T_GreaterEquals:
 class T_For:
     def __init__(self, value):
         self.value = value
+class T_PlusEquals:
+    def __init__(self, value):
+        self.value = value
+class T_MinusEquals:
+    def __init__(self, value):
+        self.value = value
+class T_StarEquals:
+    def __init__(self, value):
+        self.value = value
+class T_SlashEquals:
+    def __init__(self, value):
+        self.value = value
+class T_While:
+    def __init__(self, value):
+        self.value = value
+class T_Break:
+    def __init__(self, value):
+        self.value = value
+class T_Continue:
+    def __init__(self, value):
+        self.value = value
 
 class Tokeniser:
     def __init__(self):
@@ -129,6 +150,20 @@ class Tokeniser:
             t_type = T_GreaterEquals
         elif value == "for":
             t_type = T_For
+        elif value == "+=":
+            t_type = T_PlusEquals
+        elif value == "-=":
+            t_type = T_MinusEquals
+        elif value == "*=":
+            t_type = T_StarEquals
+        elif value == "/=":
+            t_type = T_SlashEquals
+        elif value == "while":
+            t_type = T_While
+        elif value == "break":
+            t_type = T_Break
+        elif value == "continue":
+            t_type = T_Continue
         else:
             try:
                 x = float(value)
@@ -167,6 +202,8 @@ class Tokeniser:
                     in_comment = 1
                 elif self.peek() == "*":
                     in_ml_comment = 1
+                elif self.peek() == "=":
+                    self.append_token("/=")
                 elif self.peek(-1) not in ["*", "/"]:
                     self.append_token("/")
             elif char == "*" and in_ml_comment:
@@ -191,15 +228,24 @@ class Tokeniser:
             elif char == ",":
                 self.append_token(",")
             elif char == "+":
-                self.append_token("+")
+                if self.peek() == "=":
+                    self.append_token("+=")
+                else:
+                    self.append_token("+")
             elif char == "-":
-                self.append_token("-")
+                if self.peek() == "=":
+                    self.append_token("-=")
+                else:
+                    self.append_token("-")
             elif char == "*":
-                self.append_token("*")
+                if self.peek() == "=":
+                    self.append_token("*=")
+                else:
+                    self.append_token("*")
             elif char == "=":
                 if self.peek() == "=":
                     self.append_token("==")
-                elif self.peek(-1) not in ["=", "<", ">"]:
+                elif self.peek(-1) not in ["=", "<", ">", "+", "-", "*", "/"]:
                     self.append_token("=")
             elif char == "<":
                 if self.peek() == "=":

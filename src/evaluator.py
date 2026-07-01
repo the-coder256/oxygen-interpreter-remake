@@ -173,6 +173,7 @@ class Evaluator:
                 return int(left >= right)
         elif type(node) == parser.ForLoop:
             self.evaluate_tree(node.assign, scope, parent_scope)
+            break_from_loop = 0
             while True:
                 # check condition
                 if not self.is_base_type(node.condition):
@@ -183,9 +184,51 @@ class Evaluator:
                     break
                 # run statements
                 for stmt in node.statements:
-                    self.evaluate_tree(stmt, scope, parent_scope)
+                    if type(stmt) == parser.Continue:
+                        break
+                    elif type(stmt) == parser.Break:
+                        break_from_loop = 1
+                        break
+                    else:
+                        self.evaluate_tree(stmt, scope, parent_scope)
+                if break_from_loop:
+                    break_from_loop = 0
+                    break
                 # step
                 self.evaluate_tree(node.step, scope, parent_scope)
+        elif type(node) == parser.CompoundBinOp:
+            if not self.is_base_type(node.expr):
+                expr = self.evaluate_tree(node.expr, scope, parent_scope)
+            else:
+                expr = node.expr
+            if node.op == "+=":
+                self.set_variable_value(node.name, self.get_variable_value(node.name, scope, parent_scope) + expr, scope)
+            elif node.op == "-=":
+                self.set_variable_value(node.name, self.get_variable_value(node.name, scope, parent_scope) - expr, scope)
+            elif node.op == "*=":
+                self.set_variable_value(node.name, self.get_variable_value(node.name, scope, parent_scope) * expr, scope)
+            elif node.op == "/=":
+                self.set_variable_value(node.name, self.get_variable_value(node.name, scope, parent_scope) / expr, scope)
+        elif type(node) == parser.While:
+            break_from_loop = 0
+            while True:
+                if not self.is_base_type(node.condition):
+                    condition = self.evaluate_tree(node.condition, scope, parent_scope)
+                else:
+                    condition = node.condition
+                if not condition:
+                    break
+                for stmt in node.statements:
+                    if type(stmt) == parser.Continue:
+                        break
+                    elif type(stmt) == parser.Break:
+                        break_from_loop = 1
+                        break
+                    else:
+                        self.evaluate_tree(stmt, scope, parent_scope)
+                if break_from_loop:
+                    break_from_loop = 0
+                    break
     
     def evaluate(self, __tree):
         self.tree = __tree

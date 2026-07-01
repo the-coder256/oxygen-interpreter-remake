@@ -4,6 +4,10 @@ STMT = | IDENT "(" (EXPR ("," EXPR)*)? ")"
        | "define" NAME "(" (NAME ("," NAME)*)? ")" "{" STMT* "}"
        | "return" EXPR
        | "for" NAME "=" EXPR "," EXPR "," STMT "{" STMT* "}"
+       | NAME ("+=" | "-=" | "*=" | "/=") EXPR
+       | "while" EXPR "{" STMT* "}"
+       | "break"
+       | "continue"
 
 EXPR = | NUMBER
        | STRING
